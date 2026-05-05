@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 
-const API = "http://127.0.0.1:8000/api";
+const API = "http://localhost:8000/api";
 
 // --- Visual Diagram Component ---
 const LiveDiagram = ({ projects, tasks, members, skills }) => {
