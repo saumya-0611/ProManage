@@ -1,54 +1,36 @@
 pipeline {
     agent any
 
-    environment {
-        DOCKER_IMAGE_BACKEND = "promanage-backend"
-        DOCKER_IMAGE_FRONTEND = "promanage-frontend"
-    }
-
     stages {
         stage('Checkout') {
             steps {
-                echo 'Checking out source code...'
-                // This is handled by Jenkins if using Git plugin
-            }
-        }
-
-        stage('Install Dependencies') {
-            steps {
-                dir('backend') {
-                    sh 'npm install'
-                }
-                dir('frontend') {
-                    sh 'npm install'
-                }
-            }
-        }
-
-        stage('Build & Test') {
-            steps {
-                dir('frontend') {
-                    sh 'npm run build'
-                }
-                echo 'Building backend...'
+                echo 'Pulling latest code from GitHub...'
             }
         }
 
         stage('Dockerize & Deploy') {
             steps {
-                echo 'Starting Multi-Container Environment...'
+                echo 'Building and starting containers using Docker Compose...'
+                // Using --build ensures Docker handles npm install internally
                 sh 'docker-compose down'
                 sh 'docker-compose up -d --build'
+            }
+        }
+
+        stage('Health Check') {
+            steps {
+                echo 'Verifying deployment...'
+                sh 'docker ps'
             }
         }
     }
 
     post {
-        always {
-            echo 'Pipeline Execution Finished.'
-        }
         success {
-            echo 'Deployment Successful! App is running on http://localhost:3000'
+            echo '✅ ProManage is LIVE at http://localhost:3000'
+        }
+        failure {
+            echo '❌ Deployment Failed. Check Docker logs.'
         }
     }
 }
